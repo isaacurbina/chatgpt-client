@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ChatGPT Client</string>
+    <string name="question_placeholder">Type your question here</string>
+    <string name="send_content_description">Send</string>
 </resources>
