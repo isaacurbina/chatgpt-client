@@ -1,5 +1,6 @@
 package com.iucoding.chatgptclient.composable
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +35,7 @@ import com.iucoding.chatgptclient.R
 import com.iucoding.chatgptclient.actions.UIEvent
 import com.iucoding.chatgptclient.viewmodel.MainState
 import com.iucoding.chatgptclient.viewmodel.MainViewModel
+import kotlinx.coroutines.flow.SharedFlow
 
 @Composable
 fun MainScreen(
@@ -42,6 +45,7 @@ fun MainScreen(
     MainScreen(
         state = viewModel.uiState,
         onEvent = viewModel::sendEvent,
+        toast = viewModel.toast,
         modifier = modifier
     )
 }
@@ -50,8 +54,17 @@ fun MainScreen(
 fun MainScreen(
     state: State<MainState>,
     onEvent: (event: UIEvent) -> Unit,
+    toast: SharedFlow<UiText>,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    ObserveAsEvents(flow = toast) {
+        Toast.makeText(
+            context,
+            it.asString(context),
+            Toast.LENGTH_LONG
+        ).show()
+    }
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -62,7 +75,7 @@ fun MainScreen(
         // Text view to display question
         state.value.question?.let {
             Text(
-                text = it,
+                text = it.asString(),
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
@@ -74,7 +87,7 @@ fun MainScreen(
         // Text view to display response
         state.value.response?.let {
             Text(
-                text = it,
+                text = it.asString(),
                 color = Color.White,
                 fontSize = 16.sp,
                 modifier = Modifier
@@ -106,7 +119,7 @@ fun MainScreen(
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedIconButton(
                 onClick = {
-                    onEvent(UIEvent.Search(question = userInput))
+                    onEvent(UIEvent.Search(prompt = userInput))
                 }) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = android.R.drawable.ic_menu_send),

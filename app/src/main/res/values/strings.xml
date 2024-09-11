@@ -2,4 +2,5 @@
     <string name="app_name">ChatGPT Client</string>
     <string name="question_placeholder">Type your question here</string>
     <string name="send_content_description">Send</string>
+    <string name="prompt_is_empty">Please enter a query before hitting submit</string>
 </resources>

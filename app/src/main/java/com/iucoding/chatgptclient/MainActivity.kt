@@ -14,7 +14,9 @@ import com.iucoding.chatgptclient.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var viewModel: MainViewModel
+    private val viewModel: MainViewModel by lazy {
+        MainViewModel()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,10 +24,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             ChatGPTClientTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    viewModel = MainViewModel()
                     MainScreen(
-                        question = viewModel.question,
-                        response = viewModel.response,
+                        viewModel = viewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
