@@ -7,6 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.iucoding.chatgptclient.R
 import com.iucoding.chatgptclient.actions.UIEvent
 import com.iucoding.chatgptclient.composable.UiText
+import com.iucoding.chatgptclient.networking.Result
+import com.iucoding.chatgptclient.networking.asUiText
+import com.iucoding.chatgptclient.repository.ChatGptFacade
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,6 +18,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel(
+    private val facade: ChatGptFacade,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -30,23 +34,34 @@ class MainViewModel(
         }
     }
 
+    fun onError(error: UiText) {
+        viewModelScope.launch(dispatcher) {
+            _toast.emit(error)
+        }
+    }
+
     private fun handleSearch(action: UIEvent.Search) {
         viewModelScope.launch(dispatcher) {
             if (action.prompt.isEmpty()) {
                 _toast.emit(UiText.StringResource(id = R.string.prompt_is_empty))
+                return@launch
             }
             _uiState.value = MainState(
                 question = UiText.DynamicString(value = action.prompt),
-                response = null
+                isLoading = true
             )
             val response = askChatGpt(action.prompt)
             _uiState.value = _uiState.value.copy(
-                response = response
+                response = response,
+                isLoading = false
             )
         }
     }
 
-    private fun askChatGpt(prompt: String): UiText {
-        TODO("Add chat gpt prompt here, continue https://www.geeksforgeeks.org/how-to-build-a-chatgpt-like-app-in-android-using-openai-api/#")
+    private suspend fun askChatGpt(query: String): UiText {
+        return when (val result = facade.prompt(query)) {
+            is Result.Error -> result.error.asUiText()
+            is Result.Success -> UiText.DynamicString(result.data.choices.toString())
+        }
     }
 }

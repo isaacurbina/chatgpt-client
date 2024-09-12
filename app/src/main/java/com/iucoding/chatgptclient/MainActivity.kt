@@ -9,13 +9,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.iucoding.chatgptclient.composable.MainScreen
+import com.iucoding.chatgptclient.repository.ChatGptFacade
 import com.iucoding.chatgptclient.ui.theme.ChatGPTClientTheme
 import com.iucoding.chatgptclient.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by lazy {
-        MainViewModel()
+        MainViewModel(
+            ChatGptFacade.getInstance()
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

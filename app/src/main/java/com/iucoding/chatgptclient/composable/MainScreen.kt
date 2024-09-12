@@ -17,7 +17,6 @@ import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,42 +28,44 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iucoding.chatgptclient.R
 import com.iucoding.chatgptclient.actions.UIEvent
+import com.iucoding.chatgptclient.ui.theme.ChatGPTClientTheme
 import com.iucoding.chatgptclient.viewmodel.MainState
 import com.iucoding.chatgptclient.viewmodel.MainViewModel
-import kotlinx.coroutines.flow.SharedFlow
 
 @Composable
 fun MainScreen(
     viewModel: MainViewModel,
     modifier: Modifier = Modifier
 ) {
-    MainScreen(
-        state = viewModel.uiState,
-        onEvent = viewModel::sendEvent,
-        toast = viewModel.toast,
-        modifier = modifier
-    )
-}
-
-@Composable
-fun MainScreen(
-    state: State<MainState>,
-    onEvent: (event: UIEvent) -> Unit,
-    toast: SharedFlow<UiText>,
-    modifier: Modifier = Modifier
-) {
     val context = LocalContext.current
-    ObserveAsEvents(flow = toast) {
+    ObserveAsEvents(flow = viewModel.toast) {
         Toast.makeText(
             context,
             it.asString(context),
             Toast.LENGTH_LONG
         ).show()
     }
+    MainScreen(
+        state = viewModel.uiState.value,
+        onEvent = viewModel::sendEvent,
+        onError = viewModel::onError,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun MainScreen(
+    state: MainState,
+    onEvent: (event: UIEvent) -> Unit,
+    onError: (error: UiText) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -73,7 +74,7 @@ fun MainScreen(
         verticalArrangement = Arrangement.Bottom
     ) {
         // Text view to display question
-        state.value.question?.let {
+        state.question?.let {
             Text(
                 text = it.asString(),
                 color = Color.White,
@@ -85,7 +86,7 @@ fun MainScreen(
             )
         }
         // Text view to display response
-        state.value.response?.let {
+        state.response?.let {
             Text(
                 text = it.asString(),
                 color = Color.White,
@@ -96,37 +97,57 @@ fun MainScreen(
                     .weight(1.0f)
                     .verticalScroll(rememberScrollState())
             )
-        }
+        } ?: Spacer(modifier = Modifier.weight(1f))
+        // TODO("Add spinner while waiting for response")
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
-            var userInput by remember { mutableStateOf("Hello") }
+            var textFieldValue by remember {
+                mutableStateOf(TextFieldValue(text = "What is ChatGPT"))
+            }
             TextField(
-                value = "",
+                value = textFieldValue,
                 placeholder = {
                     Text(text = stringResource(id = R.string.question_placeholder))
                 },
                 onValueChange = {
-                    userInput = it
+                    textFieldValue = it
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .weight(1f)
                     .background(
                         color = Color.White,
                         shape = RoundedCornerShape(size = 8.dp)
                     )
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             OutlinedIconButton(
+                modifier = modifier,
                 onClick = {
-                    onEvent(UIEvent.Search(prompt = userInput))
-                }) {
+                    onEvent(UIEvent.Search(prompt = textFieldValue.text))
+                }
+            ) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(id = android.R.drawable.ic_menu_send),
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_send),
                     contentDescription = stringResource(id = R.string.send_content_description),
                     tint = Color.Green
                 )
             }
         }
+    }
+}
+
+@PreviewScreenSizes
+@Composable
+private fun MainScreenPreview() {
+    ChatGPTClientTheme {
+        MainScreen(
+            state = MainState(
+                question = UiText.DynamicString("The prompt for ChatGPT goes here"),
+                response = UiText.DynamicString("The answer should go here")
+            ),
+            onEvent = {},
+            onError = {}
+        )
     }
 }
