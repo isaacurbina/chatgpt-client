@@ -9,12 +9,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.iucoding.chatgptclient.composable.MainScreen
+import com.iucoding.chatgptclient.repository.ChatGptFacade
 import com.iucoding.chatgptclient.ui.theme.ChatGPTClientTheme
 import com.iucoding.chatgptclient.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var viewModel: MainViewModel
+    private val viewModel: MainViewModel by lazy {
+        MainViewModel(
+            ChatGptFacade.getInstance()
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,10 +27,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             ChatGPTClientTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    viewModel = MainViewModel()
                     MainScreen(
-                        question = viewModel.question,
-                        response = viewModel.response,
+                        viewModel = viewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
