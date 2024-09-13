@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import com.iucoding.chatgptclient.composable.UiText.DynamicString
 
 sealed interface UiText {
 
@@ -31,3 +32,7 @@ sealed interface UiText {
         }
     }
 }
+
+fun String.toUiText() = DynamicString(this)
+
+fun Int.toUiText(args: Array<Any> = arrayOf()) = UiText.StringResource(this, args)

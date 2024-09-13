@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by lazy {
         MainViewModel(
-            ChatGptFacade.getInstance()
+            ChatGptFacade.getInstance(ChatGptFacade.Engine.GENERATIVE_AI)
         )
     }
 
