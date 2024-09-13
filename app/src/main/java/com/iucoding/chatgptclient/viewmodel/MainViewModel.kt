@@ -34,12 +34,6 @@ class MainViewModel(
         }
     }
 
-    fun onError(error: UiText) {
-        viewModelScope.launch(dispatcher) {
-            _toast.emit(error)
-        }
-    }
-
     private fun handleSearch(action: UIEvent.Search) {
         viewModelScope.launch(dispatcher) {
             if (action.prompt.isEmpty()) {
@@ -61,7 +55,7 @@ class MainViewModel(
     private suspend fun askChatGpt(query: String): UiText {
         return when (val result = facade.prompt(query)) {
             is Result.Error -> result.error.asUiText()
-            is Result.Success -> UiText.DynamicString(result.data.choices.toString())
+            is Result.Success -> result.data
         }
     }
 }

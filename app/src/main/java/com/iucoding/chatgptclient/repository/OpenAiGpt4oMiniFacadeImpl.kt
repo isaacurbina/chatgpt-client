@@ -1,6 +1,8 @@
 package com.iucoding.chatgptclient.repository
 
 import com.iucoding.chatgptclient.BuildConfig
+import com.iucoding.chatgptclient.composable.UiText
+import com.iucoding.chatgptclient.composable.toUiText
 import com.iucoding.chatgptclient.model.ChatGPTRequest
 import com.iucoding.chatgptclient.model.ChatGPTResponse
 import com.iucoding.chatgptclient.networking.DataError
@@ -24,7 +26,7 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class ChatGptFacadeImpl(
+class OpenAiGpt4oMiniFacadeImpl(
     engine: HttpClientEngine,
 ) : ChatGptFacade {
 
@@ -49,7 +51,7 @@ class ChatGptFacadeImpl(
             install(Auth) {
                 bearer {
                     loadTokens {
-                        val token = BuildConfig.API_KEY
+                        val token = BuildConfig.CHAT_GPT_API_KEY
                         BearerTokens(
                             accessToken = token,
                             refreshToken = token
@@ -63,8 +65,8 @@ class ChatGptFacadeImpl(
         }
     }
 
-    override suspend fun prompt(query: String): Result<ChatGPTResponse, DataError.Network> {
-        return httpClient.post<ChatGPTRequest, ChatGPTResponse>(
+    override suspend fun prompt(query: String): Result<UiText, DataError.Network> {
+        val response = httpClient.post<ChatGPTRequest, ChatGPTResponse>(
             requestUrl = CHAT_GPT_REQUEST_URL,
             body = ChatGPTRequest(
                 prompt = query,
@@ -72,6 +74,10 @@ class ChatGptFacadeImpl(
                 temperature = 0
             )
         )
+        return when (response) {
+            is Result.Success -> Result.Success(response.data.toString().toUiText())
+            is Result.Error -> response
+        }
     }
 
     companion object {
