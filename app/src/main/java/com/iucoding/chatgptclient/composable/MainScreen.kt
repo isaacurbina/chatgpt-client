@@ -76,9 +76,6 @@ fun MainScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.Bottom
     ) {
-        var textFieldValue by remember {
-            mutableStateOf(TextFieldValue())
-        }
         // Text view to display question
         state.question?.let {
             Text(
@@ -111,8 +108,7 @@ fun MainScreen(
             // Text view to display response
             state.response?.let {
                 // clearing prompt text field once an answer is received
-                textFieldValue = TextFieldValue()
-                Text(
+                TypewriteText(
                     text = it.asString(),
                     color = Color.White,
                     fontSize = 16.sp,
@@ -127,6 +123,9 @@ fun MainScreen(
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
+            var textFieldValue by remember {
+                mutableStateOf(TextFieldValue(""))
+            }
             TextField(
                 value = textFieldValue,
                 placeholder = {
@@ -147,6 +146,7 @@ fun MainScreen(
             OutlinedIconButton(
                 onClick = {
                     onEvent(UIEvent.Search(prompt = textFieldValue.text))
+                    textFieldValue = TextFieldValue("")
                 },
                 enabled = !state.isLoading
             ) {
@@ -168,7 +168,7 @@ private fun MainScreenPreview() {
             state = MainState(
                 question = UiText.DynamicString("The prompt for ChatGPT goes here"),
                 response = UiText.DynamicString("The answer should go here"),
-                isLoading = true,
+                isLoading = false,
             ),
             onEvent = {}
         )
