@@ -25,7 +25,9 @@ class MainViewModel(
     private val _toast = MutableSharedFlow<UiText>()
     val toast: SharedFlow<UiText> = _toast.asSharedFlow()
 
-    private val _uiState = mutableStateOf(MainState())
+    private val _uiState = mutableStateOf(
+        MainState()
+    )
     val uiState: State<MainState> = _uiState
 
     fun sendEvent(action: UIEvent) {
