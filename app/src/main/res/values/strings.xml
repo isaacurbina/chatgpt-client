@@ -14,4 +14,5 @@
     <string name="error_bad_request">The server replied with bad request.</string>
     <string name="error_unauthorized">The communication was not authorized, check your API key.</string>
     <string name="error_not_found">The API was not found.</string>
+    <string name="snack_ok">OK</string>
 </resources>
