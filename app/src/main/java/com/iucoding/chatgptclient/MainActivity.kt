@@ -7,6 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.iucoding.chatgptclient.composable.MainScreen
 import com.iucoding.chatgptclient.repository.ChatGptFacade
@@ -26,9 +29,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ChatGPTClientTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                val snackBarHostState = remember { SnackbarHostState() }
+                Scaffold(
+                    snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
                     MainScreen(
                         viewModel = viewModel,
+                        snackBarHostState = snackBarHostState,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
