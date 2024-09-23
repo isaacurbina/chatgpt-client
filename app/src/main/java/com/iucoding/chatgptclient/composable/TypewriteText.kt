@@ -27,7 +27,7 @@ fun TypewriteText(
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
-    spec: AnimationSpec<Int> = tween(durationMillis = text.length * 100, easing = LinearEasing),
+    spec: AnimationSpec<Int> = tween(durationMillis = text.length * 40, easing = LinearEasing),
     style: TextStyle = LocalTextStyle.current,
     preoccupySpace: Boolean = true
 ) {
@@ -67,11 +67,21 @@ fun TypewriteText(
 
         Timber.tag("TypewriteText").i(message = "text rendering $textToAnimate")
         // display animated text based on current index value
-        Text(
-            text = textToAnimate.substring(0, index.value),
-            style = style,
-            color = color,
-            fontSize = fontSize,
-        )
+        TypedText(textToAnimate.substring(0, index.value))
     }
+}
+
+@Composable
+fun TypedText(
+    text: String,
+    style: TextStyle = LocalTextStyle.current,
+    fontSize: TextUnit = TextUnit.Unspecified,
+    color: Color = Color.Unspecified
+) {
+    Text(
+        text = text,
+        style = style,
+        color = color,
+        fontSize = fontSize,
+    )
 }
